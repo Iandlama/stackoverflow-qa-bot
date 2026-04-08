@@ -25,7 +25,7 @@
 
 ### 1. Клонируйте репозиторий
 ```bash
-git clone https://github.com/Iandlama/stackoverflow-qa-bot/blob/main/README.md
+git clone [https://github.com/Iandlama/stackoverflow-qa-bot/blob/main/README.md](https://github.com/Iandlama/stackoverflow-qa-bot)
 cd stackoverflow-qa-chatbot
 ```
 
@@ -46,8 +46,7 @@ scikit-learn
 ### 3. Подготовьте данные
 
 Скачайте датасеты с Kaggle:
-- [Questions.csv](https://www.kaggle.com/datasets/stackoverflow/pythonquestions) (или StatsQuestions)
-- [Answers.csv](https://www.kaggle.com/datasets/stackoverflow/stacksample)
+https://www.kaggle.com/datasets/stackoverflow/stacksample
 
 Поместите файлы `Questions.csv` и `Answers.csv` в корневую папку проекта.
 

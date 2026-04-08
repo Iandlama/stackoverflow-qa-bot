@@ -25,7 +25,7 @@
 
 ### 1. Клонируйте репозиторий
 ```bash
-git clone https://github.com/your-username/stackoverflow-qa-chatbot.git
+git clone https://github.com/Iandlama/stackoverflow-qa-bot/blob/main/README.md
 cd stackoverflow-qa-chatbot
 ```
 

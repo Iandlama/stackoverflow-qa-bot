@@ -1,6 +1,4 @@
-Вот готовый `README.md` на русском языке с инструкцией по запуску:
 
-```markdown
 # 🐍 Stack Overflow Python Assistant
 
 Чат-бот для семантического поиска ответов на вопросы Python по базе данных Stack Overflow.
@@ -142,6 +140,3 @@ jupyter notebook solution_ml.ipynb   # или просто откройте в V
 
 # 3. Запуск веб-приложения
 streamlit run app.py
-```
-
-После этого откроется браузер с интерфейсом чат-бота.

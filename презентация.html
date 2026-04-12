@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Overflow Assistant — презентация решения</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+            background: #0a0a1a;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Контейнер слайдов */
+        .slides-container {
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0f0f2a 50%, #0a0a1a 100%);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Стилизация скролла внутри слайда */
+        .slide::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .slide::-webkit-scrollbar-track {
+            background: #1a1a3a;
+        }
+
+        .slide::-webkit-scrollbar-thumb {
+            background: #00c6ff;
+            border-radius: 10px;
+        }
+
+        /* Контент слайда */
+        .slide-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 2rem;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Навигация */
+        .nav {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav button {
+            background: rgba(0, 198, 255, 0.2);
+            border: 1px solid #00c6ff;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav button:hover {
+            background: #00c6ff;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00c6ff;
+        }
+
+        /* Индикаторы слайдов */
+        .dots {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.8rem;
+            z-index: 100;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: #00c6ff;
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* ===== ВСЕ ТЕКСТЫ — СВЕТЛЫЕ ===== */
+        h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, #667eea, #00c6ff, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #00c6ff;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #00c6ff;
+            padding-left: 1rem;
+        }
+
+        h3 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        p {
+            color: #dddddd;
+            line-height: 1.6;
+        }
+
+        li {
+            color: #cccccc;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(0, 198, 255, 0.15);
+            border: 1px solid #00c6ff;
+            border-radius: 40px;
+            padding: 0.3rem 1rem;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #00c6ff;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            border-color: #00c6ff;
+            transform: translateY(-5px);
+        }
+
+        .card p {
+            color: #cccccc;
+        }
+
+        .question-block {
+            background: rgba(255, 170, 68, 0.15);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-left: 4px solid #ffaa44;
+        }
+
+        .question-block strong {
+            color: #ffaa44;
+        }
+
+        .question-block span {
+            color: #ffffff;
+        }
+
+        .answer-block {
+            background: rgba(68, 255, 170, 0.1);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-left: 4px solid #44ffaa;
+        }
+
+        .answer-block strong {
+            color: #44ffaa;
+        }
+
+        .answer-block span {
+            color: #ffffff;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #00ffaa;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 198, 255, 0.3);
+            color: #00c6ff;
+        }
+
+        .footer-slide {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            color: #888888;
+        }
+
+        /* Стиль для выделенного текста */
+        strong {
+            color: #ffffff;
+        }
+
+        .card strong {
+            color: #00c6ff;
+        }
+
+        @media (max-width: 700px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .slide-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slides-container">
+        <!-- СЛАЙД 1: ТИТУЛЬНЫЙ -->
+        <div class="slide active" id="slide0">
+            <div class="slide-content" style="text-align: center;">
+                <h1>🐍 Stack Overflow Python Assistant</h1>
+                <p style="font-size: 1.3rem; color: #bbbbbb; margin: 1rem 0;">Семантический поиск ответов на
+                    Python-вопросы</p>
+                <div style="margin: 2rem 0;">
+                    <span class="badge">🧠 all-MiniLM-L6-v2</span>
+                    <span class="badge">📚 5 000 вопросов</span>
+                    <span class="badge">⚡ Cosine similarity</span>
+                    <span class="badge">🎨 Streamlit UI</span>
+                </div>
+                <p style="color: #999999;">Тестовое задание — чат-бот по базе Stack Overflow</p>
+                <div style="margin-top: 3rem;">
+                    <span style="color: #00c6ff;">▼ Нажмите стрелку внизу ▼</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- СЛАЙД 2: РЕАЛЬНЫЕ ПРИМЕРЫ ИЗ ДАТАСЕТА -->
+        <div class="slide" id="slide1">
+            <div class="slide-content">
+                <h2>📌 1. Реальные данные из датасета</h2>
+                <p style="margin-bottom: 1rem; color: #dddddd;">Выборка <strong style="color:#00c6ff;">5 000
+                        вопросов</strong> с рейтингом > 0. У каждого вопроса — лучший ответ.</p>
+
+                <div class="question-block">
+                    <strong>❓ ВОПРОС</strong> <span style="color:#ffaa44;">(рейтинг: 11)</span><br>
+                    <span style="font-size: 1.05rem; color:#ffffff;">How to get Django AutoFields to start at a higher
+                        number</span>
+                </div>
+                <div class="answer-block">
+                    <strong>💡 ЛУЧШИЙ ОТВЕТ</strong> <span style="color:#44ffaa;">(рейтинг: 10)</span><br>
+                    <span style="color:#ffffff;">For Postgres:
+                        <code>ALTER SEQUENCE sequence_name RESTART WITH 12345;</code> Look at your own DB engine's
+                        docs...</span>
+                </div>
+                <p style="margin-top: 1rem; color: #cccccc;">✅ Ответ корректен, объясняет подход на стороне БД. Такие
+                    пары используются для поиска.</p>
+            </div>
+        </div>
+
+        <!-- СЛАЙД 3: АРХИТЕКТУРА -->
+        <div class="slide" id="slide2">
+            <div class="slide-content">
+                <h2>⚙️ 2. Архитектура решения</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>🧹 1. Очистка</h3>
+                        <p>Удаление HTML-тегов, инлайн-кода, замена сущностей (&gt; → >).</p>
+                    </div>
+                    <div class="card">
+                        <h3>🔢 2. Эмбеддинги</h3>
+                        <p>Модель превращает вопрос в вектор размером <strong style="color:#00c6ff;">384</strong>
+                            (семантическое представление).</p>
+                    </div>
+                    <div class="card">
+                        <h3>📐 3. Косинусная близость</h3>
+                        <p>Ищем самые похожие векторы в базе → находим близкие по смыслу вопросы.</p>
+                    </div>
+                    <div class="card">
+                        <h3>💾 4. Оптимизация</h3>
+                        <p>Эмбеддинги и ответы в <code>.pkl</code>. Приложение загружает их мгновенно.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СЛАЙД 4: ПЕРЕФРАЗИРОВАНИЕ -->
+        <div class="slide" id="slide3">
+            <div class="slide-content">
+                <h2>🔄 3. Перефразирование → тот же вопрос</h2>
+                <p style="color:#dddddd;">Модель понимает <strong style="color:#00c6ff;">смысл</strong>, а не ключевые
+                    слова.</p>
+                <div style="background: rgba(0,198,255,0.1); border-radius: 1rem; padding: 1rem; margin: 1rem 0;">
+                    <p style="color:#dddddd;"><strong style="color:#ffaa44;">🔹 Исходный вопрос в базе:</strong><br>
+                        <code>"How to get Django AutoFields to start at a higher number"</code>
+                    </p>
+                    <p style="color:#dddddd;"><strong style="color:#ffaa44;">🔸 Перефразированные запросы:</strong></p>
+                    <ul style="margin-left: 1.5rem; color:#cccccc;">
+                        <li>«Set higher starting number for Django AutoField»</li>
+                        <li>«How do I make Django's automatic ID start from 1000?»</li>
+                        <li>«Change initial value of AutoField primary key»</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: rgba(68,255,170,0.1);">
+                    <p style="color:#ffffff;">💡 <strong style="color:#44ffaa;">Результат:</strong> Для всех запросов
+                        модель находит исходный вопрос и показывает ответ.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- СЛАЙД 5: ИНТЕРФЕЙС STREAMLIT -->
+        <div class="slide" id="slide4">
+            <div class="slide-content">
+                <h2>🖥️ 4. Веб-интерфейс (Streamlit)</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>🔍 Возможности</h3>
+                        <ul style="margin-left: 1rem; color:#cccccc;">
+                            <li>Примеры вопросов (кнопки)</li>
+                            <li>Слайдер top_k и порога релевантности</li>
+                            <li>История запросов</li>
+                            <li>Красивый тёмный UI</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>📸 Пример работы</h3>
+                        <p><code>"merge two dicts python"</code></p>
+                        <p style="color:#cccccc;">→ Найден вопрос про слияние словарей<br>→ Ответ:
+                            <code>{**d1, **d2}</code> и <code>update()</code>
+                        </p>
+                    </div>
+                </div>
+                <pre style="margin-top: 1rem;">🚀 Запуск: python -m streamlit run app.py</pre>
+            </div>
+        </div>
+
+        <!-- СЛАЙД 6: НОУТБУК -->
+        <div class="slide" id="slide5">
+            <div class="slide-content">
+                <h2>📓 5. Ноутбук с обучением</h2>
+                <p style="color:#dddddd;"><code>solution_ml.ipynb</code> — подробные комментарии на русском:</p>
+                <ul style="margin: 1rem 0 1rem 1.8rem; color:#cccccc;">
+                    <li>✅ Чтение CSV чанками (экономия памяти)</li>
+                    <li>✅ Фильтрация вопросов с Score > 0</li>
+                    <li>✅ Очистка HTML / кода из Body</li>
+                    <li>✅ Генерация эмбеддингов (Sentence Transformers)</li>
+                    <li>✅ Создание словаря filtered_answers.pkl</li>
+                </ul>
+                <div class="card" style="background: rgba(0,198,255,0.1);">
+                    <p style="color:#ffffff;">📦 Итоговые файлы: <code>questions_small.pkl</code>,
+                        <code>question_embeddings.pkl</code>, <code>filtered_answers.pkl</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- СЛАЙД 7: ВЫВОДЫ -->
+        <div class="slide" id="slide6">
+            <div class="slide-content">
+                <h2>📈 6. Оценка качества и выводы</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>✅ Что получилось</h3>
+                        <p>• Семантический поиск работает при перефразировании<br>• Легковесная модель → быстрый ответ
+                            на CPU<br>• Готовый интерфейс для демонстрации</p>
+                    </div>
+                    <div class="card">
+                        <h3>⚠️ Ограничения</h3>
+                        <p>• Не генерирует новый ответ, а находит готовый<br>• Требует предварительно вычисленных
+                            эмбеддингов</p>
+                    </div>
+                </div>
+                <div
+                    style="background: linear-gradient(90deg, #00c6ff20, #0072ff20); border-radius: 1rem; padding: 1rem; margin-top: 1rem;">
+                    <p style="color:#ffffff;">🎯 <strong style="color:#00c6ff;">Заключение:</strong> Система готова к
+                        интеграции в корпоративный Stack Overflow.</p>
+                </div>
+                <div class="footer-slide">
+                    <p style="color:#888888;">Модель: all-MiniLM-L6-v2 | Данные: Stack Overflow (5k) | Интерфейс:
+                        Streamlit</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav">
+        <button id="prevBtn" onclick="changeSlide(-1)">◀</button>
+        <button id="nextBtn" onclick="changeSlide(1)">▶</button>
+    </div>
+
+    <!-- Индикаторы -->
+    <div class="dots" id="dots"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // Создаём индикаторы
+        const dotsContainer = document.getElementById('dots');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.onclick = () => goToSlide(i);
+            dotsContainer.appendChild(dot);
+        }
+        const dots = document.querySelectorAll('.dot');
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function changeSlide(direction) {
+            let newSlide = currentSlide + direction;
+            if (newSlide < 0) newSlide = totalSlides - 1;
+            if (newSlide >= totalSlides) newSlide = 0;
+            currentSlide = newSlide;
+            updateSlides();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlides();
+        }
+
+        // Клавиши клавиатуры
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        updateSlides();
+    </script>
+</body>
+
+</html>
